@@ -3,6 +3,7 @@ import HeroChair from '../components/home/HeroChair';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sparkles, Scissors, Leaf, Crown, Star, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -93,14 +94,23 @@ export default function Home({ salons: initialSalons = [] }: HomeProps) {
           category: activeCategory,
         });
 
-        const res = await fetch(`/api/salons?${params}`, {
-          signal: controller.signal,
-        });
+        let query = supabase
+            .from('salons')
+            .select('*');
 
-        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+          if (searchQuery) {
+            query = query.ilike('name', `%${searchQuery}%`);
+          }
 
-        const data: Salon[] = await res.json();
-        setSalons(data);
+          const { data, error } = await query;
+
+          if (error) throw error;
+
+          console.log(data);
+          setSalons(data || []);
+
+          setSalons(data || []);
+
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error('Failed to fetch salons:', err);
@@ -186,11 +196,14 @@ export default function Home({ salons: initialSalons = [] }: HomeProps) {
           </div>
         )}
 
-        {/* Salon cards */}
         {!loading && !error && salons.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {salons.map((salon, index) => (
-              <SalonCard key={salon.id} salon={salon} delay={index * 60} />
+              <SalonCard
+                key={salon.id}
+                salon={salon}
+                delay={index * 60}
+              />
             ))}
           </div>
         )}
@@ -262,7 +275,9 @@ function VibeCard({
 // ─── Salon Card ───────────────────────────────────────────────────────────────
 
 function SalonCard({ salon, delay }: { salon: Salon; delay: number }) {
-  const [tilt,    setTilt]    = useState({ x: 0, y: 0 });
+  console.log("CARD:", salon);
+
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -312,7 +327,7 @@ function SalonCard({ salon, delay }: { salon: Salon; delay: number }) {
           {/* Price tier badge */}
           <div className="absolute top-3 right-3 px-2 py-1 bg-[#1A0A0F]/80 backdrop-blur-sm rounded-full">
             <span className="text-[#C9A84C] font-bold text-sm">
-              {'₹'.repeat(salon.price_tier)}
+              {'₹'.repeat(salon.price_tier || 1)}
             </span>
           </div>
         </div>
@@ -326,7 +341,7 @@ function SalonCard({ salon, delay }: { salon: Salon; delay: number }) {
             </h3>
             <div className="flex items-center flex-shrink-0">
               <Star className="w-4 h-4 text-[#C9A84C] fill-[#C9A84C]" />
-              <span className="text-[#C9A84C] text-sm font-medium ml-1">{salon.rating}</span>
+              <span className="text-[#C9A84C] text-sm font-medium ml-1">{salon.rating || 4.5}</span>
             </div>
           </div>
 
@@ -336,7 +351,7 @@ function SalonCard({ salon, delay }: { salon: Salon; delay: number }) {
               {salon.neighborhood}
             </span>
             <span className="text-[#F5E6C8]/40 text-xs">
-              {salon.review_count.toLocaleString()} reviews
+              {salon.review_count || 0} reviews
             </span>
           </div>
 
