@@ -133,8 +133,8 @@ export default function SalonProfile() {
         },
       });
     } catch (err) {
-      console.error('Booking error:', err);
-    } finally {
+        console.error("Booking error:", err);
+      } finally {
       setBookingLoading(false);
     }
   };
