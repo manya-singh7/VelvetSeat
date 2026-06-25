@@ -116,6 +116,13 @@ export default function SalonProfile() {
 
       if (error) throw error;
 
+      setShowBookingModal(false);
+      setCustomerName('');
+      setCustomerPhone('');
+      setBookingDate('');
+      setBookingTime('');
+      setSelectedService(null);
+
       navigate('/booking-confirmation', {
         state: {
           salonName: salon.name,

@@ -159,7 +159,7 @@ export default function Home({ salons: initialSalons = [] }: HomeProps) {
       </section>
 
       {/* ── Salon Grid ──────────────────────────────────────────────────────── */}
-      <section className="py-12 px-4 max-w-7xl mx-auto">
+      <section  id="top-salons" className="py-12 px-4 max-w-7xl mx-auto">
         <h2 className="font-display text-3xl text-[#C9A84C] mb-2 text-center">
           Top Salons in Bangalore
         </h2>
